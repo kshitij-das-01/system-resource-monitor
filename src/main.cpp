@@ -1,7 +1,7 @@
 #include "SystemMonitor.h"
 #include <iostream>
 #include <thread>
-#include <chorno>
+#include <chrono>
 
 int main() {
     SystemMonitor monitor;

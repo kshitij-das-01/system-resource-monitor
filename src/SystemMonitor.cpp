@@ -33,6 +33,12 @@ SystemMonitor::SystemMonitor()
 SystemMonitor::~SystemMonitor() = default;
 
 // Public interface
+static std::atomic<bool> g_signalRunning{true};
+
+static void signalHandler(int) {
+	g_signalRunning.store(false);
+}
+
 bool SystemMonitor::initialize() {
 	pImpl->sysInfo = createSystemInfo();
 
@@ -44,8 +50,8 @@ bool SystemMonitor::initialize() {
 	}
 
 	// Register signal handlers
-	std::signal(SIGINT, [](int) {});
-	std::signal(SIGTERM, [](int) {});
+	std::signal(SIGINT, signalHandler);
+	std::signal(SIGTERM, signalHandler);
 
 	return true;
 }
@@ -67,32 +73,58 @@ void SystemMonitor::refresh() {
 }
 
 // Box Drawing
+int getVisibleLength(const std::string& line) {
+	int visibleLen = 0;
+	bool inEscape = false;
+
+	for (size_t i = 0; i < line.size(); i++) {
+		unsigned char byte = static_cast<unsigned char>(line[i]);
+
+		// Skip ANSI escape sequences
+		if (byte == '\033') {
+			inEscape = true;
+			continue;
+		}
+		if (inEscape) {
+			if (byte == 'm')
+				inEscape = false;
+			continue;
+		}
+
+		// Detect UTF-8 lead byte and skip multi-byte sequences
+		if (byte >= 0xF0) {
+			// 4 byte char: skip next 3 bytes
+			i += 3;
+		}
+		else if (byte >= 0xE0) {
+			// 3 byte char: skip next 2 bytes
+			i += 2;
+		}
+		else if (byte >= 0xC0) {
+			// 2 byte char: skip next 1 byte
+			i += 1;
+		}
+		// if byte < 0x80, it's ASCII - count it
+
+		// Count this as 1 visible char
+		visibleLen++;
+	}
+
+    return visibleLen;
+}
+
 void SystemMonitor::printBox(const std::vector<std::string>& lines) const {
 	// Find the longest line (ignoring ANSI codes for width calculation)
 	int maxWidth = 0;
 
 	for (const auto& line : lines) 
 	{
-		int visibleLen = 0;
-		bool inEscape = false;
-		for (char c : line) 
-		{
-			if (c == '\033') {
-				inEscape = true;
-				continue;
-			}
-			if (inEscape) {
-				if (c == 'm') 
-					inEscape = false;
-				continue;
-			}
-			visibleLen++;
-		}
-		if (visibleLen > maxWidth)
-			maxWidth = visibleLen;
+		int len = getVisibleLength(line);
+		if (len > maxWidth)
+			maxWidth = len;
 	}
 
-	int padding = 8; // 4 spaces on each side
+	int padding = 4; // 2 spaces on each side
 
 	// Top border
 	std::cout << Color::WHITE << "\xe2\x94\x8c";
@@ -103,30 +135,20 @@ void SystemMonitor::printBox(const std::vector<std::string>& lines) const {
 	// Content lines
 	for (const auto& line : lines) 
 	{
-		int visibleLen = 0;
-		bool inEscape = false;
-		for (char c : line) 
-		{
-			if (c == '\033') {
-				inEscape = true;
-				continue;
-			}
-			if (inEscape) {
-				if (c == 'm')
-					inEscape = false;
-				continue;
-			}
-			visibleLen++;
-		}
+		int visibleLen = getVisibleLength(line);
 
-		std::cout << Color::WHITE << "\xe2\x94\x82" << Color::RESET 
-					<< " " << line;
+		// Left border
+		std::cout << Color::WHITE << "\xe2\x94\x82" << Color::RESET;
+
+		// 2 spaces left padding
+		std::cout << "  " << line;
 		
-		// Pad remaining space
+		// Pad remaining space to align
 		for (int i = visibleLen; i < maxWidth; i++) 
 			std::cout << " ";
 		
-		std::cout << " " << Color::WHITE << "\xe2\x94\x82" << Color::RESET << std::endl;
+		// 2 spaces right padding + right border
+		std::cout << "  " << Color::WHITE << "\xe2\x94\x82" << Color::RESET << std::endl;
 	}
 	
 	// Bottom border
@@ -171,7 +193,7 @@ void SystemMonitor::display() const {
 	{
 		std::string color = utils::usageColor(pImpl->cpuUsage);
 		std::ostringstream oss;
-		oss << Color::BOLD << "CPU	" << Color::RESET << " "
+		oss << Color::BOLD << "CPU      " << Color::RESET << " "
 			<< color << utils::progressBar(pImpl->cpuUsage) << " "
 			<< std::fixed << std::setprecision(2) << pImpl->cpuUsage << "%"
 			<< Color::RESET;
@@ -187,7 +209,7 @@ void SystemMonitor::display() const {
 
 		std::string color = utils::usageColor(memPercent);
 		std::ostringstream oss;
-		oss << Color::BOLD << "Memory	" << Color::RESET << " "
+		oss << Color::BOLD << "Memory   " << Color::RESET << " "
 			<< color << utils::progressBar(memPercent) << " "
 			<< std::fixed << std::setprecision(2) << memPercent << "%"
 			<< Color::RESET
@@ -200,7 +222,7 @@ void SystemMonitor::display() const {
 	{
 		std::string color = utils::usageColor(pImpl->diskUsage);
 		std::ostringstream oss;
-		oss << Color::BOLD << "Disk		" << Color::RESET << " "
+		oss << Color::BOLD << "Disk     " << Color::RESET << " "
 			<< color << utils::progressBar(pImpl->diskUsage) << " "
 			<< std::fixed << std::setprecision(2) << pImpl->diskUsage << "%"
 			<< Color::RESET;
@@ -212,7 +234,7 @@ void SystemMonitor::display() const {
 }
 
 bool SystemMonitor::isRunning() const {
-	return pImpl->running.load();
+	return pImpl->running.load() && g_signalRunning.load();
 }
 
 void SystemMonitor::stop() {

@@ -14,6 +14,12 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 include_directories(include)
 
 # Executable
+set(SOURCES 
+	src/main.cpp
+	src/SystemMonitor.cpp
+	src/SystemInfo_Utils.cpp
+)
+
 add_executable(system_monitor ${SOURCES})
 
 # Threading
