@@ -29,7 +29,7 @@ class WindowsSystemInfo : public ISystemInfo {
 	}
 };
 
-std::unique_ptr<ISystemInfo> createSystemInfo() {
-	return std::make_unique<WindowsSystemInfo>();
-}
+// std::unique_ptr<ISystemInfo> createSystemInfo() {
+// 	return std::make_unique<WindowsSystemInfo>();
+// }
 #endif // _WIN32

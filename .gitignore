@@ -1,2 +1,116 @@
+# ================= BUILD ARTIFACTS =================
+# CMake build directory (platform-native build folder)
+/build/
+/cmake-build-*/
+
+# Compiled Object Files
+*.o
+*.obj
+*.ko
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (platform-specific)
+*.so.*
+*.dylib
+*.dll
+
+# Static libraries
+*.lai
+*.lai
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug/Profile files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+*.ilk
+
+# ================= IDE / EDITOR FILES =================
+# Visual Studio / Visual Studio Code
 .vscode/
-Project1_ResourceMonitor/
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+
+# CLion / JetBrains
+.idea/
+cmake-build-*/
+
+# Xcode
+*.xcodeproj/
+*.xcworkspace/
+
+# Vim/Emacs/Neovim
+*~
+*.swp
+*.swo
+*_tags
+TAGS
+.nvimrc
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ================= DEPENDENCY / PACKAGE FILES =================
+# Conan / vcpkg / CPM
+conan/
+vcpkg/
+vcpkg_installed/
+!vcpkg.json
+!vcpkg-configuration.json
+
+# If using git submodules for dependencies
+dependencies/
+
+# ================= SYSTEM / OS GENERATED =================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ================= LOGS / MISC =================
+*.log
+*.tmp
+*.temp
+core
+vgcore.*
+
+# Coverage / Testing
+*.gcno
+*.gcda
+*.info
+coverage/
+
+# Documentation generation (if any)
+docs/_build/
+Project1_ResourceMonitor

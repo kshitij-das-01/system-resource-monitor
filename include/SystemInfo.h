@@ -12,8 +12,6 @@ class ISystemInfo {
 	
 	// Memory currently free/available for allocation in bytes
 	virtual uint64_t getAvailableMemory() const = 0;
-	
-	// More methods if required
 };
 
 // Function to ensure consistent 

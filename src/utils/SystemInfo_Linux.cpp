@@ -27,7 +27,7 @@ class LinuxSystemInfo : public ISystemInfo {
 	}
 };
 
-std::unique_ptr<ISystemInfo> createSystemInfo() {
-	return std::make_unique<LinuxSystemInfo>();
-}
+// std::unique_ptr<ISystemInfo> createSystemInfo() {
+// 	return std::make_unique<LinuxSystemInfo>();
+// }
 #endif // LINUX
