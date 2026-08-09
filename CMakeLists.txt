@@ -4,12 +4,11 @@ project(SystemMonitor VERSION 0.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Crucial for debugging: Enable debug symbols
+# Debug symbols
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 
-# Source files
-file(GLOB_RECURSE SOURCES "src/*.cpp" "src/utils/*.cpp")
+# Main executable
+file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 # Include directories
 include_directories(include)
@@ -17,5 +16,19 @@ include_directories(include)
 # Executable
 add_executable(system_monitor ${SOURCES})
 
+# Threading
+find_package(Threads REQUIRED)
+target_link_libraries(system_monitor PRIVATE Threads::Threads)
+
 # Installation
 install(TARGETS system_monitor DESTINATION bin)
+
+# Tests
+enable_testing()
+add_executable(system_monitor_tests
+	tests/test_system_info.cpp
+	src/SystemInfo_Utils.cpp
+)
+target_include_directories(system_monitor_tests PRIVATE include)
+target_link_libraries(system_monitor_tests PRIVATE Threads::Threads)
+add_test(NAME system_monitor_tests COMMAND system_monitor_tests)
