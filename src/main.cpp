@@ -48,16 +48,14 @@ int main()
         return EXIT_FAILURE;
     }
 
-    std::cout << "System Resource Monitor - Press Ctrl+C to exit" << std::endl;
-    std::cout << "==============================================" << std::endl;
-
     bool firstFrame = true;
-
+    
     while (g_running) 
     {
         if (!firstFrame) {
             clearScreen();
         }
+        
         firstFrame = false;
 
         // Capture timestamp
@@ -71,6 +69,9 @@ int main()
         float diskUage = sysInfo->getDiskUsage();
 
         // Display
+        std::cout << "System Resource Monitor - Press Ctrl+C to exit" << std::endl;
+        std::cout << "----------------------------------------------" << std::endl;
+        std::cout << std::endl;
         std::cout << "[" << std::put_time(std::localtime(&time_t_now), "%H:%M:%S") << "]" << std::endl;
 
         std::cout << "CPU Usage: " << std::fixed << std::setprecision(2)

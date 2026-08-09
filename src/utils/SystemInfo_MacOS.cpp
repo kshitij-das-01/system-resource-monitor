@@ -41,7 +41,9 @@ public:
 			size_t page_size_len = sizeof(page_size);
 
 			if (sysctlbyname("hw.pagesize", &page_size, &page_size_len, NULL, 0) == 0) {
-				return static_cast<uint64_t>(vm_stats.free_count) * page_size;
+				return static_cast<uint64_t>(
+					vm_stats.free_count + vm_stats.inactive_count + vm_stats.speculative_count
+				) * page_size;
 			}
 		}
 
