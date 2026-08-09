@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include "Utils.h"
 
 class LinuxSystemInfo : public ISystemInfo {
 private:
@@ -63,7 +64,7 @@ public:
 			return 0.0f;
 
 		float usage = (1.0f - static_cast<float>(idle_diff) / total_diff) * 100.0f;
-		return std::clamp(usage, 0.0f, 100.0f);
+		return utils::clamp(usage, 0.0f, 100.0f);
 	}
 
 	float getDiskUsage() const override
@@ -79,7 +80,7 @@ public:
 			return 0.0f;
 		
 		float usage = (1.0f - static_cast<float>(available) / total) * 100.0f;
-		return std::clamp(usage, 0.0f, 100.0f);
+		return utils::clamp(usage, 0.0f, 100.0f);
 	}
 };
 #endif // LINUX
