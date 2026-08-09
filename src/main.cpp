@@ -1,28 +1,93 @@
 #include "SystemInfo.h"
+#include <atomic>
+#include <chrono>
+#include <cmath>
+#include <csignal>
+#include <cstdlib>
+#include <iomanip>
 #include <iostream>
+#include <memory>
+#include <thread>
 
-void displayMemoryInfo() {
+// -- Signal handling
+namespace {
+    std::atomic<bool> g_running(true);
+
+    void signalHandler(int) {
+        g_running.store(false);
+    }
+} // anonymous namespace
+
+// -- Helpers
+namespace {
+    double bytesToGB(uint64_t bytes) {
+        return static_cast<double>(bytes) / (1024.0 * 1024.0 * 1024.0);
+    }
+
+    void clearScreen() {
+    #ifdef _WIN32
+        std::system("cls");
+    #else
+        std::system("clear");
+    #endif
+    }
+} // anonymous namespace
+
+// -- Main
+int main()
+{
+    // Register signal handlers for graceful shutdown
+    std::signal(SIGINT, signalHandler);
+    std::signal(SIGTERM, signalHandler);
+
+    // Create the platform-specific monitor
     std::unique_ptr<ISystemInfo> sysInfo = createSystemInfo();
 
     if (!sysInfo) {
-        std::cerr << "Error: Could not find system information implementation for this platform." << std::endl;
-        return;
+        std::cerr << "Error: Could not create system info implementation for this platform." << std::endl;
+        return EXIT_FAILURE;
     }
 
-    uint64_t totalMem = sysInfo->getTotalMemory();
-    uint64_t availableMem = sysInfo->getAvailableMemory();
+    std::cout << "System Resource Monitor - Press Ctrl+C to exit" << std::endl;
+    std::cout << "==============================================" << std::endl;
 
-    // Convert bytes to GB for readability
-    auto bytesToGB = [](uint64_t bytes) {
-        return static_cast<double>(bytes) / (1024.0 * 1024.0 * 1024.0);
-    };
+    bool firstFrame = true;
 
-    std::cout << "---- System Resource Monitor ----" << std::endl;
-    std::cout << "Total Memory: " << bytesToGB(totalMem) << " GB" << std::endl;
-    std::cout << "Available Memory: " << bytesToGB(availableMem) << " GB" << std::endl;
-}
+    while (g_running) 
+    {
+        if (!firstFrame) {
+            clearScreen();
+        }
+        firstFrame = false;
 
-int main() {
-    displayMemoryInfo();
-    return 0;
+        // Capture timestamp
+        auto now = std::chrono::system_clock::now();
+        const std::time_t time_t_now = std::chrono::system_clock::to_time_t(now);
+
+        // Query all metrics
+        uint64_t totalMemory = sysInfo->getTotalMemory();
+        uint64_t availMemory = sysInfo->getAvailableMemory();
+        float cpuUsage = sysInfo->getCpuUsage();
+        float diskUage = sysInfo->getDiskUsage();
+
+        // Display
+        std::cout << "[" << std::put_time(std::localtime(&time_t_now), "%H:%M:%S") << "]" << std::endl;
+
+        std::cout << "CPU Usage: " << std::fixed << std::setprecision(2)
+                << cpuUsage << "%" << std::endl;
+
+        std::cout << "Memory: " << std::fixed << std::setprecision(2)
+                << bytesToGB(availMemory) << " GB / "
+                << bytesToGB(totalMemory) << " GB total" << std::endl;
+
+        std::cout << "Disk Usage: " << std::fixed << std::setprecision(2) 
+                << diskUage << "%" << std::endl;
+        std::cout << std::endl;
+
+        // Wait 2 seconds before next update
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+    }
+
+    std::cout << "\nExiting System Resource Monitor..." << std::endl;
+    return EXIT_SUCCESS;
 }
