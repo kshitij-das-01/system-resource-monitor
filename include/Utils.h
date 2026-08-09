@@ -54,5 +54,22 @@ namespace utils {
 
 		return Color::BRIGHT_GREEN;
 	}
-}
+
+	inline void enableAnsiColors() {
+	#ifdef _WIN32
+		HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+		if (hOut == INVALID_HANDLE_VALUE) 
+			return;
+
+		DWORD dwMode = 0;
+		if (!GetConsoleMode(hOut,&dwMode))
+			return;
+		
+		// Enable ANSI escape code processing
+		dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+		SetConsoleMode(hOut, dwMode);
+	#endif
+		// macOS/Linux: ANSI codes work out of the box
+	}
+} // namespace utils
 #endif // UTILS_H
