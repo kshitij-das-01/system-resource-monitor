@@ -200,6 +200,10 @@ void SystemMonitor::display() const {
 		lines.push_back(oss.str());
 	}
 
+    // Empty line
+	lines.push_back("");
+
+
 	// Memory line: Label + Progress Bar + Percentage + GB info
 	{
 		float memPercent = 0.0f;
@@ -217,6 +221,9 @@ void SystemMonitor::display() const {
 			<< utils::bytesToGB(pImpl->availMemory) << "GB free)";	
 		lines.push_back(oss.str());
 	}
+
+    // Empty line
+	lines.push_back("");
 
 	// Disk line: Label + Progress Bar + Percentage
 	{
