@@ -13,7 +13,7 @@ int main() {
     while (monitor.isRunning()) {
         monitor.refresh();
         monitor.display();
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(2));
     }
 
     std::cout << "\n Exiting System Resource Monitor..." << std::endl;
