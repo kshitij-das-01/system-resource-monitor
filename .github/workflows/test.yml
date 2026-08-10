@@ -1,54 +1,54 @@
 name: Test
 
 on:
-    push:
-        branches: [ main, develop ]
-    pull_request:
-        branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
     
 jobs:
-    test:
-        strategy:
-            fail-fast: false # Runn on all platforms even in one fails
-            matrix:
-                include:
-                  - os: ubuntu-latest
-                    binary_path: build/system_monitor
-                  - os: macos-latest
-                    binary_path: build/system_monitor
-                  - os: windows-latest
-                    binary_path: build/Release/system_monitor.exe
+  test:
+    strategy:
+      fail-fast: false # Runn on all platforms even in one fails
+      matrix:
+        include:
+          - os: ubuntu-latest
+            binary_path: build/system_monitor
+          - os: macos-latest
+            binary_path: build/system_monitor
+          - os: windows-latest
+            binary_path: build/Release/system_monitor.exe
+      
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure CMake (with tests)
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build test executable
+        run: cmake --build build --config Release --target system_monitor_tests
+      
+      - name: Run units tests
+        run : |
+          # Using ctest
+          cd build && ctest --output-on-failure
+
+      - name: Verify binary works (functional test)
+        run: |
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            timeout /t 2 /nobreak >nul || true
+              ${{ matrix.binary_path }} || true
+            else
+              timeout 2 ./${{ matrix.binary_path }} || true
+          fi
         
-        runs-on: ${{ matrix.os }}
-
-        steps:
-          - name: Checkout code
-            uses: actions/checkout@v4
-          
-          - name: Configure CMake (with tests)
-            run: cmake -B build -DCMAKE_BUILD_TYPE=Release
-
-          - name: Build test executable
-            run: cmake --build build --config Release --target system_monitor_tests
-          
-          - name: Run units tests
-            run : |
-              # Using ctest
-              cd build && ctest --output-on-failure
-
-          - name: Verify binary works (functional test)
-            run: |
-              if [ "${{ matrix.os }}" = "windows-latest" ]; then
-                timeout /t 2 /nobreak >nul || true
-                ${{ matrix.binary_path }} || true
-              else
-                timeout 2 ./${{ matrix.binary_path }} || true
-              fi
-          
-          -name: Upload test logs
-            if: failure()
-            uses: actions/upload-artifact@v4
-            with:
-                name: test-logs-${{ matrix.os }}
-                path: build/Testing/
-                retention-days: 2
+      - name: Upload test logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs-${{ matrix.os }}
+          path: build/Testing/
+          retention-days: 2
