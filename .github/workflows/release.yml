@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: system_monitor-linux-amd64
+            asset_name: system_monitor-linux-amd64
+          
+          - os: macos-latest
+            artifact_name: system_monitor-macos-arm64
+            asset_name: system_monitor-macos-arm64
+          
+          - os: windows-latest
+            artifact_name: system_monitor-windows-amd64.exe
+            asset_name: system_monitor-windows-amd64.exe
+    
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release
+      
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/${{ matrix.artifact_name }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
