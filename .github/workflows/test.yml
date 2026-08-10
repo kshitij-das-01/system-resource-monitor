@@ -34,7 +34,7 @@ jobs:
       - name: Run units tests
         run : |
           # Using ctest
-          cd build && ctest --output-on-failure
+          cd build && ctest -C Release --output-on-failure
 
       - name: Verify binary works (functional test)
         run: |
