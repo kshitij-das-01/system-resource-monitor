@@ -37,6 +37,7 @@ jobs:
           cd build && ctest -C Release --output-on-failure
 
       - name: Verify binary works (functional test)
+        shell: bash
         run: |
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
             timeout /t 2 /nobreak >nul || true
