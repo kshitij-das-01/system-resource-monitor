@@ -1,6 +1,9 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #include "Color.h"
 #include <cstdint>
 #include <string>
