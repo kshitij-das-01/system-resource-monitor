@@ -52,7 +52,7 @@ public:
 		uint64_t kernel = toUint64(kernel_time);
 		uint64_t user = toUint64(user_time);
 
-		uint64_t total = kernal + user;
+		uint64_t total = kernel + user;
 		uint64_t idle_diff = idle - m_prev_idle;
 		uint64_t total_diff = total - m_prev_total;
 
