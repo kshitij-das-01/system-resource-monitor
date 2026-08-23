@@ -26,6 +26,22 @@ struct SystemMonitor::Impl {
 	std::string timestamp;
 };
 
+struct Timer {
+	std::chrono::time_point<std::chrono::steady_clock> start, end;
+	std::chrono::duration<float> duration;
+
+	Timer() {
+		start = std::chrono::high_resolution_clock::now();
+	}
+
+	~Timer() {
+		end = std::chrono::high_resolution_clock::now();
+		duration = end - start;
+
+		float miliSec = duration.count() * 1000;
+		std::cout << miliSec << "ms " << std::endl;
+	}
+};
 // Constructor / Destructor
 SystemMonitor::SystemMonitor()
 	: pImpl(std::make_unique<Impl>()) {}
