@@ -1,6 +1,9 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #include "Color.h"
 #include <cstdint>
 #include <string>
@@ -22,9 +25,9 @@ namespace utils {
 	// Cross platform screen clear
 	inline void clearScreen() {
 	#ifdef _WIN32
-		std::system("cls");
+		static_cast<void>(std::system("cls"));
 	#else 
-		std::system("clear");
+		static_cast<void>(std::system("clear"));
 	#endif
 	}
 

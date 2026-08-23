@@ -26,6 +26,22 @@ struct SystemMonitor::Impl {
 	std::string timestamp;
 };
 
+struct Timer {
+	std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+	std::chrono::duration<float> duration;
+
+	Timer() {
+		start = std::chrono::high_resolution_clock::now();
+	}
+
+	~Timer() {
+		end = std::chrono::high_resolution_clock::now();
+		duration = end - start;
+
+		float miliSec = duration.count() * 1000;
+		std::cout << miliSec << "ms " << std::endl;
+	}
+};
 // Constructor / Destructor
 SystemMonitor::SystemMonitor()
 	: pImpl(std::make_unique<Impl>()) {}
@@ -200,6 +216,10 @@ void SystemMonitor::display() const {
 		lines.push_back(oss.str());
 	}
 
+    // Empty line
+	lines.push_back("");
+
+
 	// Memory line: Label + Progress Bar + Percentage + GB info
 	{
 		float memPercent = 0.0f;
@@ -217,6 +237,9 @@ void SystemMonitor::display() const {
 			<< utils::bytesToGB(pImpl->availMemory) << "GB free)";	
 		lines.push_back(oss.str());
 	}
+
+    // Empty line
+	lines.push_back("");
 
 	// Disk line: Label + Progress Bar + Percentage
 	{
