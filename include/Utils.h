@@ -25,9 +25,9 @@ namespace utils {
 	// Cross platform screen clear
 	inline void clearScreen() {
 	#ifdef _WIN32
-		std::system("cls");
+		static_cast<void>(std::system("cls"));
 	#else 
-		std::system("clear");
+		static_cast<void>(std::system("clear"));
 	#endif
 	}
 
