@@ -39,11 +39,11 @@ jobs:
       - name: Verify binary works (functional test)
         shell: bash
         run: |
+          sleep 2
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            timeout /t 2 /nobreak >nul || true
               ${{ matrix.binary_path }} || true
             else
-              timeout 2 ./${{ matrix.binary_path }} || true
+              ./${{ matrix.binary_path }} || true
           fi
         
       - name: Upload test logs

@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   build-and-release:
     strategy:
@@ -26,7 +29,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: cmake -B build -DCMAKE_BUILD_TYPE=Release
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         run: cmake --build build --config Release
@@ -35,7 +41,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            build/${{ matrix.artifact_name }}
+            build/**/system_monitor*
           draft: false
           prerelease: false
         env:

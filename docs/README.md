@@ -3,7 +3,7 @@
 ## Overview
 A CLI tool that monitors and displays real-time system resource usage (CPU, memory, disk). This project teaches project structure, file organization, and integration with system-specific APIs.
 
-Cross-platform (Linux/maxOS/Windows) via `src/utils/` implementations (`SystemInfo_Linux.cpp`, `SystemInfo_MacOS.cpp`, `SystemInfo_Windows.cpp`).
+Cross-platform (Linux/macOS/Windows) via `src/utils/` implementations (`SystemInfo_Linux.cpp`, `SystemInfo_MacOS.cpp`, `SystemInfo_Windows.cpp`).
 
 ## Features
 - **Real-time metrics**: `SystemMonitor::refresh()` queries OS APIs; `SystemMonitor::display()` renders output.
